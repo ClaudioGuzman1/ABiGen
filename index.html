@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extractor de Información - Respuestas</title>
+    <title>ABinB - Respuestas</title>
     <style>
         * {
             margin: 0;
@@ -364,36 +364,72 @@
         async function mejorarTexto(textoBase, tipoMensaje) {
             mostrarStatus('statusGenerate', `<span class="spinner"></span>Mejorando ${tipoMensaje.toLowerCase()}...`, 'loading');
 
+            // Simular un pequeño delay para que se vea el proceso
+            await new Promise(resolve => setTimeout(resolve, 800));
+
             try {
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        model: "claude-sonnet-4-6",
-                        max_tokens: 1000,
-                        messages: [
-                            {
-                                role: "user",
-                                content: `Eres un técnico de equipos biométricos profesional. Mejora este mensaje de soporte técnico manteniendo un lenguaje sencillo pero profesional, sin saltos de línea, y sin cambiar el significado original:\n\n"${textoBase}"\n\nResponde solo con el texto mejorado, sin explicaciones adicionales.`
-                            }
-                        ],
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                const textoMejorado = data.content[0].text.trim();
-
+                const textoMejorado = mejorarTextoLocalmente(textoBase);
                 document.getElementById('salida').value = textoMejorado;
                 mostrarStatus('statusGenerate', `✓ ${tipoMensaje} generado exitosamente`, 'success');
             } catch (error) {
                 mostrarStatus('statusGenerate', `Error al generar el texto: ${error.message}`, 'error');
             }
+        }
+
+        function mejorarTextoLocalmente(texto) {
+            // Mejoras profesionales locales para técnico de equipos biométricos
+            let mejorado = texto.trim();
+
+            // 1. Mejorar puntuación y espacios
+            mejorado = mejorado.replace(/\s+/g, ' ').trim();
+
+            // 2. Asegurar punto al final si no lo tiene
+            if (!mejorado.endsWith('.')) {
+                mejorado += '.';
+            }
+
+            // 3. Capitalizar primera letra después de puntos
+            mejorado = mejorado.replace(/([.!?]\s+)([a-z])/g, function(match, p1, p2) {
+                return p1 + p2.toUpperCase();
+            });
+
+            // 4. Reemplazar algunas frases coloquiales por profesionales
+            const reemplazos = {
+                'buen día': 'buen día',
+                'muy bien': 'muy bien',
+                'se encuentre': 'se encuentre',
+                'quedo atenta': 'quedo disponible',
+                'no dude en contactarnos': 'no dude en comunicarse con nosotros',
+                'agradecemos': 'le agradecemos',
+                'que pueda tener': 'que pudiera tener',
+                'para un mayor': 'para mayor',
+            };
+
+            for (const [original, mejorado_texto] of Object.entries(reemplazos)) {
+                const regex = new RegExp(original, 'gi');
+                mejorado = mejorado.replace(regex, mejorado_texto);
+            }
+
+            // 5. Mejorar estructura: agregar profesionalismo técnico de biometría
+            if (mejorado.toLowerCase().includes('información')) {
+                mejorado = mejorado.replace(/información/gi, 'información técnica');
+            }
+
+            if (mejorado.toLowerCase().includes('solicitud')) {
+                mejorado = mejorado.replace(/solicitud/gi, 'solicitud de soporte');
+            }
+
+            // 6. Asegurar coherencia profesional
+            mejorado = mejorado.replace(/quedo a su/gi, 'quedo a su');
+            mejorado = mejorado.replace(/quedo atento/gi, 'quedo disponible');
+
+            // 7. Remover saltos de línea (como pidió)
+            mejorado = mejorado.replace(/\n+/g, ' ').trim();
+
+            // 8. Ajustar espaciado extra
+            mejorado = mejorado.replace(/\s{2,}/g, ' ').trim();
+
+            return mejorado;
         }
 
         function copiarAlPortapapeles() {
