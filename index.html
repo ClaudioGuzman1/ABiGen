@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor de Información - Respuestas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        textarea {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: none;
+            line-height: 1.5;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+        
+        .data-display {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .data-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .data-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .data-value {
+            font-size: 13px;
+            color: #333;
+            word-break: break-word;
+        }
+        
+        .copy-btn {
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #764ba2;
+        }
+        
+        .status-message {
+            font-size: 12px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .status-message.show {
+            display: block;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-message.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #0c5460;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Extractor de Información</h1>
+            <p>Extrae datos de tickets y genera respuestas mejoradas automáticamente</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>Entrada</h2>
+                <textarea id="entrada" placeholder="Pega aquí el contenido del ticket de soporte..."></textarea>
+                <button class="btn-primary" onclick="extraerDatos()">Extraer Datos</button>
+                <div id="statusExtract" class="status-message"></div>
+            </div>
+            
+            <div class="section">
+                <h2>Información Extraída</h2>
+                <div id="datosExtraidos" class="data-display">
+                    <div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">
+                        Los datos aparecerán aquí...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="border-top: 1px solid #eee;"></div>
+        
+        <div class="buttons-grid" style="padding: 20px 30px; margin: 0;">
+            <button class="btn-primary" onclick="generarPrimeraConversacion()">Primera Conversación</button>
+            <button class="btn-primary" onclick="generarSeguimiento()">Seguimiento</button>
+            <button class="btn-primary" onclick="generarSolucion()">Solución</button>
+        </div>
+        
+        <div style="border-top: 1px solid #eee;"></div>
+        
+        <div class="content" style="grid-template-columns: 1fr; padding: 30px;">
+            <div class="section">
+                <h2>Salida</h2>
+                <textarea id="salida" readonly placeholder="El texto generado aparecerá aquí..."></textarea>
+                <div style="display: flex; gap: 10px; margin-top: 12px;">
+                    <button class="copy-btn" onclick="copiarAlPortapapeles()">📋 Copiar al Portapapeles</button>
+                    <button class="btn-secondary" onclick="limpiar()" style="flex: 1;">Limpiar</button>
+                </div>
+                <div id="statusGenerate" class="status-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let datosExtraidos = {};
+
+        function extraerDatos() {
+            const entrada = document.getElementById('entrada').value;
+            if (!entrada.trim()) {
+                mostrarStatus('statusExtract', 'Por favor, pega el contenido del ticket', 'error');
+                return;
+            }
+
+            const campos = ['User Name', 'User Mobile phone', 'Requested by', 'Person who requires the service', 'Email', 'Company', 'Country'];
+            datosExtraidos = {};
+
+            campos.forEach(campo => {
+                const regex = new RegExp(`${campo}\\s*[=:]\\s*(.+?)(?=\\n|$)`, 'i');
+                const match = entrada.match(regex);
+                if (match) {
+                    datosExtraidos[campo] = match[1].trim();
+                }
+            });
+
+            if (Object.keys(datosExtraidos).length === 0) {
+                mostrarStatus('statusExtract', 'No se encontraron datos. Verifica el formato del texto.', 'error');
+                return;
+            }
+
+            mostrarDatosExtraidos();
+            mostrarStatus('statusExtract', `✓ Se extrajeron ${Object.keys(datosExtraidos).length} campos exitosamente`, 'success');
+        }
+
+        function mostrarDatosExtraidos() {
+            const container = document.getElementById('datosExtraidos');
+            container.innerHTML = '';
+
+            Object.entries(datosExtraidos).forEach(([key, value]) => {
+                const item = document.createElement('div');
+                item.className = 'data-item';
+                item.innerHTML = `
+                    <div class="data-label">${key}</div>
+                    <div class="data-value">${value}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        async function generarPrimeraConversacion() {
+            if (!datosExtraidos['User Name']) {
+                mostrarStatus('statusGenerate', 'Primero extrae los datos del ticket', 'error');
+                return;
+            }
+
+            const userName = datosExtraidos['User Name'];
+            const textoPrimeraConversacion = `Hola, muy buen día, ${userName}. Espero que se encuentre muy bien. Mi nombre es Claudio, y seré el agente encargado de apoyarle con el seguimiento de su petición. Con gusto estaré notificándole por este medio una vez que su solicitud haya sido procesada. Quedo a sus órdenes y le envío un cordial saludo.`;
+
+            await mejorarTexto(textoPrimeraConversacion, 'Primera conversación');
+        }
+
+        async function generarSeguimiento() {
+            if (!datosExtraidos['Requested by']) {
+                mostrarStatus('statusGenerate', 'Primero extrae los datos del ticket', 'error');
+                return;
+            }
+
+            const usuario = datosExtraidos['Requested by'];
+            const textoSeguimiento = `Buenos días ${usuario}, Le escribo para darle un seguimiento a su solicitud. Nuestro equipo técnico se encuentra evaluando su requerimiento y le notificaremos cualquier novedad a la brevedad. Agradecemos su paciencia y comprensión. Quedo atenta a cualquier pregunta que pueda tener.`;
+
+            await mejorarTexto(textoSeguimiento, 'Seguimiento');
+        }
+
+        async function generarSolucion() {
+            if (!datosExtraidos['Requested by']) {
+                mostrarStatus('statusGenerate', 'Primero extrae los datos del ticket', 'error');
+                return;
+            }
+
+            const usuario = datosExtraidos['Requested by'];
+            const textoSolucion = `Buenos días ${usuario}, Me complace informarle que su solicitud ha sido procesada exitosamente. La solución ha sido implementada y se encuentra disponible. Si requiere mayor información o tiene alguna duda adicional, no dude en contactarnos. Agradecemos haber sido de su ayuda y quedamos a su disposición para cualquier otra necesidad.`;
+
+            await mejorarTexto(textoSolucion, 'Solución');
+        }
+
+        async function mejorarTexto(textoBase, tipoMensaje) {
+            mostrarStatus('statusGenerate', `<span class="spinner"></span>Mejorando ${tipoMensaje.toLowerCase()}...`, 'loading');
+
+            try {
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-6",
+                        max_tokens: 1000,
+                        messages: [
+                            {
+                                role: "user",
+                                content: `Eres un técnico de equipos biométricos profesional. Mejora este mensaje de soporte técnico manteniendo un lenguaje sencillo pero profesional, sin saltos de línea, y sin cambiar el significado original:\n\n"${textoBase}"\n\nResponde solo con el texto mejorado, sin explicaciones adicionales.`
+                            }
+                        ],
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const textoMejorado = data.content[0].text.trim();
+
+                document.getElementById('salida').value = textoMejorado;
+                mostrarStatus('statusGenerate', `✓ ${tipoMensaje} generado exitosamente`, 'success');
+            } catch (error) {
+                mostrarStatus('statusGenerate', `Error al generar el texto: ${error.message}`, 'error');
+            }
+        }
+
+        function copiarAlPortapapeles() {
+            const salida = document.getElementById('salida');
+            if (!salida.value.trim()) {
+                mostrarStatus('statusGenerate', 'No hay texto para copiar', 'error');
+                return;
+            }
+
+            navigator.clipboard.writeText(salida.value).then(() => {
+                mostrarStatus('statusGenerate', '✓ Copiado al portapapeles', 'success');
+                setTimeout(() => {
+                    document.getElementById('statusGenerate').classList.remove('show');
+                }, 2000);
+            }).catch(err => {
+                mostrarStatus('statusGenerate', 'Error al copiar', 'error');
+            });
+        }
+
+        function limpiar() {
+            document.getElementById('entrada').value = '';
+            document.getElementById('salida').value = '';
+            document.getElementById('datosExtraidos').innerHTML = `
+                <div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">
+                    Los datos aparecerán aquí...
+                </div>
+            `;
+            datosExtraidos = {};
+            document.getElementById('statusExtract').classList.remove('show');
+            document.getElementById('statusGenerate').classList.remove('show');
+        }
+
+        function mostrarStatus(elementId, mensaje, tipo) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = mensaje;
+            element.className = `status-message show ${tipo}`;
+        }
+    </script>
+</body>
+</html>
