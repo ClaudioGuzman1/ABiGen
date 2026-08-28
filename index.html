@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AbiGen - 🔥</title>
-    <script src="https://js.puter.com/v2/"></script>
+    <title>ABinBev - Answers</title>
+    <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai"></script>
     <style>
         * {
             margin: 0;
@@ -237,7 +237,12 @@
     <div class="container">
         <div class="header">
             <h1>📋 Extractor de Información</h1>
-            <p>Extrae datos de tickets y genera respuestas mejoradas automáticamente</p>
+            <p>Extrae datos de tickets y genera respuestas mejoradas automáticamente con Google Gemini</p>
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <input type="password" id="apiKey" placeholder="Ingresa tu API Key de Google Gemini (gratuita)" style="padding: 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; width: 300px; max-width: 100%;">
+                <button onclick="guardarApiKey()" style="padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 1px solid white; border-radius: 4px; cursor: pointer; font-weight: bold;">Guardar</button>
+                <a href="https://ai.google.dev" target="_blank" style="color: white; text-decoration: underline; font-size: 12px;">Obtén tu API Key gratis →</a>
+            </div>
         </div>
         
         <div class="content">
@@ -283,6 +288,34 @@
 
     <script>
         let datosExtraidos = {};
+        let genAI = null;
+        let apiKeyGuardada = localStorage.getItem('geminiApiKey') || '';
+
+        // Inicializar Gemini con la API key guardada
+        if (apiKeyGuardada) {
+            inicializarGemini(apiKeyGuardada);
+        }
+
+        function guardarApiKey() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) {
+                alert('Por favor ingresa una API Key válida');
+                return;
+            }
+            localStorage.setItem('geminiApiKey', apiKey);
+            apiKeyGuardada = apiKey;
+            inicializarGemini(apiKey);
+            document.getElementById('apiKey').value = '';
+            mostrarStatus('statusExtract', '✓ API Key guardada correctamente', 'success');
+        }
+
+        function inicializarGemini(apiKey) {
+            try {
+                genAI = new google.generativeai.GoogleGenerativeAI(apiKey);
+            } catch (error) {
+                mostrarStatus('statusExtract', 'Error al inicializar Gemini: ' + error.message, 'error');
+            }
+        }
 
         function extraerDatos() {
             const entrada = document.getElementById('entrada').value;
@@ -363,13 +396,15 @@
         }
 
         async function mejorarTexto(textoBase, tipoMensaje) {
+            if (!apiKeyGuardada || !genAI) {
+                mostrarStatus('statusGenerate', 'Por favor, ingresa tu API Key de Google Gemini primero', 'error');
+                return;
+            }
+
             mostrarStatus('statusGenerate', `<span class="spinner"></span>Mejorando ${tipoMensaje.toLowerCase()}...`, 'loading');
 
             try {
-                // Verificar que Puter esté disponible
-                if (typeof puter === 'undefined') {
-                    throw new Error('Puter.js no se ha cargado correctamente. Por favor, recarga la página.');
-                }
+                const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
                 const prompt = `Eres un técnico de equipos biométricos profesional. Mejora este mensaje de soporte técnico manteniendo un lenguaje sencillo pero profesional, sin saltos de línea, y sin cambiar el significado original:
 
@@ -377,44 +412,19 @@
 
 Responde solo con el texto mejorado, sin explicaciones adicionales.`;
 
-                // Usar la API de Puter.js para mejorar el texto
-                const response = await puter.ai.chat([
-                    {
-                        role: "system",
-                        content: "Eres un asistente profesional de soporte técnico especializado en equipos biométricos. Mejora los textos manteniendo un tono profesional, sencillo y directo."
-                    },
-                    {
-                        role: "user",
-                        content: prompt
-                    }
-                ]);
-
-                // Extraer el texto correctamente de la respuesta de Puter.js
-                let textoMejorado = '';
-                
-                if (typeof response === 'string') {
-                    textoMejorado = response.trim();
-                } else if (response && response.message) {
-                    textoMejorado = response.message.trim();
-                } else if (response && response.content) {
-                    textoMejorado = response.content.trim();
-                } else if (Array.isArray(response) && response.length > 0) {
-                    textoMejorado = response[0].trim();
-                } else if (response && typeof response === 'object') {
-                    // Intentar extraer cualquier propiedad de texto
-                    textoMejorado = Object.values(response).find(v => typeof v === 'string') || JSON.stringify(response);
-                    textoMejorado = textoMejorado.trim();
-                }
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const textoMejorado = response.text().trim();
 
                 if (!textoMejorado) {
-                    throw new Error('No se pudo extraer el texto de la respuesta');
+                    throw new Error('La respuesta de Gemini está vacía');
                 }
 
                 document.getElementById('salida').value = textoMejorado;
-                mostrarStatus('statusGenerate', `✓ ${tipoMensaje} generado exitosamente con Puter.js`, 'success');
+                mostrarStatus('statusGenerate', `✓ ${tipoMensaje} generado exitosamente con Google Gemini`, 'success');
             } catch (error) {
-                console.error('Error detallado:', error);
-                mostrarStatus('statusGenerate', `Error al generar el texto: ${error.message}. Intenta de nuevo.`, 'error');
+                console.error('Error:', error);
+                mostrarStatus('statusGenerate', `Error al generar el texto: ${error.message}`, 'error');
             }
         }
 
