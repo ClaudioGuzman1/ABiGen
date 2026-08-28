@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABinB - Respuestas</title>
+    <title>Extractor de Información - Respuestas</title>
+    <script src="https://js.puter.com/v2/"></script>
     <style>
         * {
             margin: 0;
@@ -364,72 +365,37 @@
         async function mejorarTexto(textoBase, tipoMensaje) {
             mostrarStatus('statusGenerate', `<span class="spinner"></span>Mejorando ${tipoMensaje.toLowerCase()}...`, 'loading');
 
-            // Simular un pequeño delay para que se vea el proceso
-            await new Promise(resolve => setTimeout(resolve, 800));
-
             try {
-                const textoMejorado = mejorarTextoLocalmente(textoBase);
+                // Verificar que Puter esté disponible
+                if (typeof puter === 'undefined') {
+                    throw new Error('Puter.js no se ha cargado correctamente. Por favor, recarga la página.');
+                }
+
+                const prompt = `Eres un técnico de equipos biométricos profesional. Mejora este mensaje de soporte técnico manteniendo un lenguaje sencillo pero profesional, sin saltos de línea, y sin cambiar el significado original:
+
+"${textoBase}"
+
+Responde solo con el texto mejorado, sin explicaciones adicionales.`;
+
+                // Usar la API de Puter.js para mejorar el texto
+                const response = await puter.ai.chat([
+                    {
+                        role: "system",
+                        content: "Eres un asistente profesional de soporte técnico especializado en equipos biométricos. Mejora los textos manteniendo un tono profesional, sencillo y directo."
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                ]);
+
+                const textoMejorado = response.trim();
                 document.getElementById('salida').value = textoMejorado;
-                mostrarStatus('statusGenerate', `✓ ${tipoMensaje} generado exitosamente`, 'success');
+                mostrarStatus('statusGenerate', `✓ ${tipoMensaje} generado exitosamente con Puter.js`, 'success');
             } catch (error) {
-                mostrarStatus('statusGenerate', `Error al generar el texto: ${error.message}`, 'error');
+                console.error('Error:', error);
+                mostrarStatus('statusGenerate', `Error al generar el texto: ${error.message}. Intenta de nuevo.`, 'error');
             }
-        }
-
-        function mejorarTextoLocalmente(texto) {
-            // Mejoras profesionales locales para técnico de equipos biométricos
-            let mejorado = texto.trim();
-
-            // 1. Mejorar puntuación y espacios
-            mejorado = mejorado.replace(/\s+/g, ' ').trim();
-
-            // 2. Asegurar punto al final si no lo tiene
-            if (!mejorado.endsWith('.')) {
-                mejorado += '.';
-            }
-
-            // 3. Capitalizar primera letra después de puntos
-            mejorado = mejorado.replace(/([.!?]\s+)([a-z])/g, function(match, p1, p2) {
-                return p1 + p2.toUpperCase();
-            });
-
-            // 4. Reemplazar algunas frases coloquiales por profesionales
-            const reemplazos = {
-                'buen día': 'buen día',
-                'muy bien': 'muy bien',
-                'se encuentre': 'se encuentre',
-                'quedo atenta': 'quedo disponible',
-                'no dude en contactarnos': 'no dude en comunicarse con nosotros',
-                'agradecemos': 'le agradecemos',
-                'que pueda tener': 'que pudiera tener',
-                'para un mayor': 'para mayor',
-            };
-
-            for (const [original, mejorado_texto] of Object.entries(reemplazos)) {
-                const regex = new RegExp(original, 'gi');
-                mejorado = mejorado.replace(regex, mejorado_texto);
-            }
-
-            // 5. Mejorar estructura: agregar profesionalismo técnico de biometría
-            if (mejorado.toLowerCase().includes('información')) {
-                mejorado = mejorado.replace(/información/gi, 'información técnica');
-            }
-
-            if (mejorado.toLowerCase().includes('solicitud')) {
-                mejorado = mejorado.replace(/solicitud/gi, 'solicitud de soporte');
-            }
-
-            // 6. Asegurar coherencia profesional
-            mejorado = mejorado.replace(/quedo a su/gi, 'quedo a su');
-            mejorado = mejorado.replace(/quedo atento/gi, 'quedo disponible');
-
-            // 7. Remover saltos de línea (como pidió)
-            mejorado = mejorado.replace(/\n+/g, ' ').trim();
-
-            // 8. Ajustar espaciado extra
-            mejorado = mejorado.replace(/\s{2,}/g, ' ').trim();
-
-            return mejorado;
         }
 
         function copiarAlPortapapeles() {
