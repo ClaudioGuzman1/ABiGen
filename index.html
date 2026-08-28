@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extractor de Información - Respuestas</title>
+    <title>AbiGen - 🔥</title>
     <script src="https://js.puter.com/v2/"></script>
     <style>
         * {
@@ -389,11 +389,31 @@ Responde solo con el texto mejorado, sin explicaciones adicionales.`;
                     }
                 ]);
 
-                const textoMejorado = response.trim();
+                // Extraer el texto correctamente de la respuesta de Puter.js
+                let textoMejorado = '';
+                
+                if (typeof response === 'string') {
+                    textoMejorado = response.trim();
+                } else if (response && response.message) {
+                    textoMejorado = response.message.trim();
+                } else if (response && response.content) {
+                    textoMejorado = response.content.trim();
+                } else if (Array.isArray(response) && response.length > 0) {
+                    textoMejorado = response[0].trim();
+                } else if (response && typeof response === 'object') {
+                    // Intentar extraer cualquier propiedad de texto
+                    textoMejorado = Object.values(response).find(v => typeof v === 'string') || JSON.stringify(response);
+                    textoMejorado = textoMejorado.trim();
+                }
+
+                if (!textoMejorado) {
+                    throw new Error('No se pudo extraer el texto de la respuesta');
+                }
+
                 document.getElementById('salida').value = textoMejorado;
                 mostrarStatus('statusGenerate', `✓ ${tipoMensaje} generado exitosamente con Puter.js`, 'success');
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error detallado:', error);
                 mostrarStatus('statusGenerate', `Error al generar el texto: ${error.message}. Intenta de nuevo.`, 'error');
             }
         }
