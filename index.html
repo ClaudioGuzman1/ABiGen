@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABinBev - 🔥</title>
+    <title>ABinBev - 🍺</title>
     <style>
         * {
             margin: 0;
@@ -345,7 +345,7 @@
             }
 
             const userName = datosExtraidos['User Name'];
-            const textoPrimeraConversacion = `Hola, muy buen día, ${userName}. Espero que se encuentre muy bien. Mi nombre es Claudio, y seré el agente encargado de apoyarle con el seguimiento de su petición. Con gusto estaré notificándole por este medio una vez que su solicitud haya sido procesada. Quedo a sus órdenes y le envío un cordial saludo.`;
+            const textoPrimeraConversacion = `Hola, muy buen día ${userName} , Espero que se encuentre muy bien. Mi nombre es Claudio, y seré el agente encargado de apoyarle con el seguimiento de su petición. Con gusto estaré notificándole por este medio una vez que su solicitud haya sido procesada. Quedo a sus órdenes y le envío un cordial saludo.`;
 
             await mejorarTexto(textoPrimeraConversacion, 'Primera conversación');
         }
@@ -357,7 +357,7 @@
             }
 
             const usuario = datosExtraidos['Requested by'];
-            const textoSeguimiento = `Buenos días ${usuario}, Le escribo para darle un seguimiento a su solicitud. Nuestro equipo técnico se encuentra evaluando su requerimiento y le notificaremos cualquier novedad a la brevedad. Agradecemos su paciencia y comprensión. Quedo atento a cualquier pregunta que pueda tener.`;
+            const textoSeguimiento = `Hola, muy buen día ${usuario}. Espero se encuentre muy bien le comento que su solicitud está siendo atendida. Por lo anterior le solicitamos amablemente nos pueda apoyar para validar que el colaborador pueda acceder, quedamos al pendiente de su validación, saludos cordiales.`;
 
             await mejorarTexto(textoSeguimiento, 'Seguimiento');
         }
@@ -369,7 +369,7 @@
             }
 
             const usuario = datosExtraidos['Requested by'];
-            const textoSolucion = `Buenos días ${usuario}, Me complace informarle que su solicitud ha sido procesada exitosamente. La solución ha sido implementada y se encuentra disponible. Si requiere mayor información o tiene alguna duda adicional, no dude en contactarnos. Agradecemos haber sido de su ayuda y quedamos a su disposición para cualquier otra necesidad.`;
+            const textoSolucion = `Buenos días ${usuario}, Me complace informarle que su solicitud ha sido completada. La solución ha sido implementada y se encuentra disponible. Si requiere mayor información o tiene alguna duda adicional, no dude en contactarnos. Agradecemos haber sido de su ayuda y quedamos a su disposición para cualquier otra necesidad.`;
 
             await mejorarTexto(textoSolucion, 'Solución');
         }
@@ -377,7 +377,7 @@
         async function mejorarTexto(textoBase, tipoMensaje) {
             mostrarStatus('statusGenerate', `<span class="spinner"></span>Mejorando ${tipoMensaje.toLowerCase()}...`, 'loading');
 
-            const prompt = `Eres un ingeniero de equipos biométricos profesional. Mejora este mensaje de soporte técnico manteniendo un lenguaje sencillo pero profesional, hablando de usted pero sin títulos como 'Sr.', 'Sra', Srita' u otros, sin saltos de línea, y sin cambiar el significado original:\n\n"${textoBase}"\n\nResponde solo con el texto mejorado, sin explicaciones adicionales.`;
+            const prompt = `Actúa como un agente de soporte técnico especializado en relojes biométricos. Tu tarea es ayudarme a redactar y optimizar las respuestas para los tickets de atención al cliente de mi empresa. El tono debe ser técnico, claro, y estructurado reduciendo la cantidad de palabras lo mas posible. Corrige la ortografía, la puntuación y elimina mayúsculas innecesarias a mitad de frase. Que el saludo sea neutro, sin hacer diferencia entre mañana, tarde o noche. Haz que las instrucciones técnicas complejas sean fáciles de entender para el usuario. Restricciones estrictas de formato (Formato Plano): No utilices viñetas (*, -), listas numeradas, ni tablas. Estructura el texto colocándolo en una sola línea, Elimina los saltos de línea. Hazlo sin cambiar el significado original:\n\n"${textoBase}"\n\nResponde solo con el texto mejorado, sin explicaciones adicionales.`;
 
             try {
                 const response = await fetch(`${GEMINI_ENDPOINT}?key=${API_KEY}`, {
