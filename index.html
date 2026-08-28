@@ -377,7 +377,7 @@
         async function mejorarTexto(textoBase, tipoMensaje) {
             mostrarStatus('statusGenerate', `<span class="spinner"></span>Mejorando ${tipoMensaje.toLowerCase()}...`, 'loading');
 
-            const prompt = `Eres un técnico de equipos biométricos profesional. Mejora este mensaje de soporte técnico manteniendo un lenguaje sencillo pero profesional, sin saltos de línea, y sin cambiar el significado original:\n\n"${textoBase}"\n\nResponde solo con el texto mejorado, sin explicaciones adicionales.`;
+            const prompt = `Eres un ingeniero de equipos biométricos profesional. Mejora este mensaje de soporte técnico manteniendo un lenguaje sencillo pero profesional, hablando de usted pero sin títulos como 'Sr.', 'Sra', Srita' u otros, sin saltos de línea, y sin cambiar el significado original:\n\n"${textoBase}"\n\nResponde solo con el texto mejorado, sin explicaciones adicionales.`;
 
             try {
                 const response = await fetch(`${GEMINI_ENDPOINT}?key=${API_KEY}`, {
