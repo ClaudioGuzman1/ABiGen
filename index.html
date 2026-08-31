@@ -344,13 +344,6 @@
                 return;
             }
 
-
-            // 2. Asignamos la propiedad según la prioridad establecida
-            const usuario = datosExtraidos['Requested by'] 
-                        || datosExtraidos['Opened by Name'] 
-                        || datosExtraidos['Creado por'] 
-                        || datosExtraidos['Caller Name'];            
-
             const usuario = datosExtraidos['Requested by'] || datosExtraidos['Opened by Name'] || datosExtraidos['Creado por'] || datosExtraidos['Caller Name'];
             const textoPrimeraConversacion = `Hola, muy buen día ${usuario} , Espero que se encuentre muy bien. Mi nombre es Claudio Guzmán, y seré el agente encargado de apoyarle con el seguimiento de su petición. Con gusto estaré notificándole por este medio una vez que su solicitud haya sido procesada. Quedo a sus órdenes y le envío un cordial saludo.`;
 
