@@ -303,7 +303,7 @@
                 return;
             }
 
-            const campos = ['User Name', 'User Mobile phone', 'Requested by', 'Person who requires the service', 'Email', 'Company', 'Country'];
+            const campos = ['User Name', 'User Mobile phone', 'Requested by', 'Opened by Name', 'Creado por', 'Caller Name', 'Person who requires the service', 'Email', 'Company', 'Country'];
             datosExtraidos = {};
 
             campos.forEach(campo => {
@@ -339,13 +339,13 @@
         }
 
         async function generarPrimeraConversacion() {
-            if (!datosExtraidos['User Name']) {
+            if (!datosExtraidos['Requested by']) {
                 mostrarStatus('statusGenerate', 'Primero extrae los datos del ticket', 'error');
                 return;
             }
 
-            const userName = datosExtraidos['User Name'];
-            const textoPrimeraConversacion = `Hola, muy buen día ${userName} , Espero que se encuentre muy bien. Mi nombre es Claudio, y seré el agente encargado de apoyarle con el seguimiento de su petición. Con gusto estaré notificándole por este medio una vez que su solicitud haya sido procesada. Quedo a sus órdenes y le envío un cordial saludo.`;
+            const usuario = datosExtraidos['Requested by'] || datosExtraidos['Opened by Name'] || datosExtraidos['Creado por'] || datosExtraidos['Caller Name'];
+            const textoPrimeraConversacion = `Hola, muy buen día ${usuario} , Espero que se encuentre muy bien. Mi nombre es Claudio Guzmán, y seré el agente encargado de apoyarle con el seguimiento de su petición. Con gusto estaré notificándole por este medio una vez que su solicitud haya sido procesada. Quedo a sus órdenes y le envío un cordial saludo.`;
 
             await mejorarTexto(textoPrimeraConversacion, 'Primera conversación');
         }
@@ -356,7 +356,7 @@
                 return;
             }
 
-            const usuario = datosExtraidos['Requested by'];
+            const usuario = datosExtraidos['Requested by'] || datosExtraidos['Opened by Name'] || datosExtraidos['Creado por'] || datosExtraidos['Caller Name'];
             const textoSeguimiento = `Hola, muy buen día ${usuario}. Espero se encuentre muy bien le comento que su solicitud está siendo atendida. Por lo anterior le solicitamos amablemente nos pueda apoyar para validar que el colaborador pueda acceder, quedamos al pendiente de su validación, saludos cordiales.`;
 
             await mejorarTexto(textoSeguimiento, 'Seguimiento');
@@ -368,7 +368,7 @@
                 return;
             }
 
-            const usuario = datosExtraidos['Requested by'];
+            const usuario = datosExtraidos['Requested by'] || datosExtraidos['Opened by Name'] || datosExtraidos['Creado por'] || datosExtraidos['Caller Name'];
             const textoSolucion = `Buenos días ${usuario}, Me complace informarle que su solicitud ha sido completada. La solución ha sido implementada y se encuentra disponible. Si requiere mayor información o tiene alguna duda adicional, no dude en contactarnos. Agradecemos haber sido de su ayuda y quedamos a su disposición para cualquier otra necesidad.`;
 
             await mejorarTexto(textoSolucion, 'Solución');
